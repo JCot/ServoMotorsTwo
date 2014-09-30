@@ -1,4 +1,4 @@
-                                            #include <hidef.h>      /* common defines and macros */
+#include <hidef.h>      /* common defines and macros */
 #include "derivative.h"      /* derivative-specific definitions */
 #include "types.h"
 #include "State.h"
@@ -16,12 +16,14 @@
 #define LOOP_START (0x80)
 #define END_LOOP (0xA0)
 #define RECIPE_END (0x00)
-#define CMD_MASK (0xE0)
+#define OP_CODE_MASK (0xE0)
+#define PARAM_MASK (0x1F)
 
 const unsigned int recipeOne[] = {
      MOV|0x00,
      MOV|0x05,
-     MOV|0x00
+     MOV|0x00,
+     RECIPE_END
 };
   
 const unsigned int recipeTwo[] = {
@@ -30,13 +32,15 @@ const unsigned int recipeTwo[] = {
      MOV|0x01,
      MOV|0x04,
      END_LOOP,
-     MOV|0x01
+     MOV|0x01,
+     RECIPE_END
 };
   
 const unsigned int recipeThree[] = {
      MOV|0x02,
      WAIT|0x00,
-     MOV|0x03
+     MOV|0x03,
+     RECIPE_END
 };
   
 const unsigned int recipeFour[] = {
@@ -45,7 +49,8 @@ const unsigned int recipeFour[] = {
      WAIT|0x1F,
      WAIT|0x1F,
      WAIT|0x1F,
-     MOV|0x04
+     MOV|0x04,
+     RECIPE_END
 };
 
 const unsigned int recipeFive[] = {
@@ -54,7 +59,8 @@ const unsigned int recipeFive[] = {
      MOV|0x04,
      MOV|0x01,
      MOV|0x03,
-     MOV|0x05
+     MOV|0x05,
+     RECIPE_END
 };
 
 const unsigned int recipeSix[] = {
@@ -68,16 +74,23 @@ const unsigned int recipeSeven[] = {
      MOV|0x02,
      MOV|0x04,
      0x63,
-     MOV|0x05
+     MOV|0x05,
+     RECIPE_END
 };
 
 const unsigned int testRecipe[] = {
-     MOV|0x02
+     MOV|0x02,
+     RECIPE_END
 };
 
 // Value to set PWMDTY0 to for the different positions
 int dutyPositions[] = {2, 3, 4, 5, 6, 7};
 int dutyIndex = 0;
+const unsigned int leftRecipe = testRecipe;
+const unsigned int rightRecipe = testRecipe;
+int leftIndex = 0;
+int rightIndex = 0;
+const int timeToMove = 2; //Number of clock cycles it takes to move one position
 
 // Initializes SCI0 for 8N1, 9600 baud, polled I/O
 // The value for the baud selection registers is determined
@@ -157,15 +170,18 @@ void InitializeTimer(void)
 }
 
 //Pass numElements as sizeof(array)/sizeof(array[0])
-void readRecipe(unsigned int recipe[], int numElements, int servo){
-  int index = 0;
+void executeCommand(int cmd, int servo){
+  //int index = 0;
+  //int cmd = 0;
+  int opCode = 0;
+  int param = 0;
+  int numLoop = 0;
+  int indexLoop = 0;
   
-  while(index < numElements){
-    int cmd = recipe[index];
-    int opCode = cmd & CMD_MASK;
-    int param = cmd & opCode;
-    int numLoop = 0;
-    int indexLoop = 0;
+  //do{
+    //cmd = recipe[index];
+    opCode = cmd & OP_CODE_MASK;
+    param = cmd & PARAM_MASK;
     
     //TODO: Trigger each command from interupt
     switch(opCode){
@@ -185,17 +201,17 @@ void readRecipe(unsigned int recipe[], int numElements, int servo){
       }
       case LOOP_START:{
         numLoop = (int)param;
-        indexLoop = index;
+        indexLoop = leftIndex;
         
         break;  
       }
       case END_LOOP:{
         if(numLoop > 0){
-          index = indexLoop + 1;
+          //index = indexLoop + 1;
           numLoop--;
-          
-          break;
         }
+        
+        break;
       }
       case RECIPE_END:{
         break;    
@@ -203,7 +219,7 @@ void readRecipe(unsigned int recipe[], int numElements, int servo){
     }
     
     index++;  
-  }
+  //}while(cmd != RECIPE_END);
 }
 
 
@@ -269,13 +285,6 @@ UINT8 GetChar(void)
   return SCI0DRL;
 }
 
-void wait() {
-int index =0;
-while(index<10000000) {
-index++;
-}
-}
-
 void main(void) {
   /* put your own code here */ 
   int ServoIndex=0;
@@ -316,7 +325,7 @@ void main(void) {
           }
           case 'c':
           case 'C':{
-            readRecipe(testRecipe, sizeof(testRecipe)/sizeof(testRecipe[0]), 1);
+            readRecipe(leftRecipe, sizeof(leftRecipe)/sizeof(leftRecipe[0]), 1);
             break; 
           }
           case 'n':
