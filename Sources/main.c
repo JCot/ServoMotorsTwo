@@ -18,13 +18,13 @@
 #define RECIPE_END (0x00)
 #define CMD_MASK (0xE0)
 
-const unsigned char recipeOne[] = {
+const unsigned int recipeOne[] = {
      MOV|0x00,
      MOV|0x05,
      MOV|0x00
 };
   
-const unsigned char recipeTwo[] = {
+const unsigned int recipeTwo[] = {
      MOV|0x03,
      LOOP_START|0x00,
      MOV|0x01,
@@ -33,13 +33,13 @@ const unsigned char recipeTwo[] = {
      MOV|0x01
 };
   
-const unsigned char recipeThree[] = {
+const unsigned int recipeThree[] = {
      MOV|0x02,
      WAIT|0x00,
      MOV|0x03
 };
   
-const unsigned char recipeFour[] = {
+const unsigned int recipeFour[] = {
      MOV|0x02,
      MOV|0x03,
      WAIT|0x1F,
@@ -48,7 +48,7 @@ const unsigned char recipeFour[] = {
      MOV|0x04
 };
 
-const unsigned char recipeFive[] = {
+const unsigned int recipeFive[] = {
      MOV|0x00,
      MOV|0x02,
      MOV|0x04,
@@ -57,18 +57,22 @@ const unsigned char recipeFive[] = {
      MOV|0x05
 };
 
-const unsigned char recipeSix[] = {
+const unsigned int recipeSix[] = {
      MOV|0x01,
      WAIT|0x01,
      RECIPE_END,
      MOV|0x03     
 };
 
-const unsigned char recipeSeven[] = {
+const unsigned int recipeSeven[] = {
      MOV|0x02,
      MOV|0x04,
      0x63,
      MOV|0x05
+};
+
+const unsigned int testRecipe[] = {
+     MOV|0x02
 };
 
 // Value to set PWMDTY0 to for the different positions
@@ -153,13 +157,15 @@ void InitializeTimer(void)
 }
 
 //Pass numElements as sizeof(array)/sizeof(array[0])
-void readRecipe(unsigned char recipe[], int numElements, int servo){
+void readRecipe(unsigned int recipe[], int numElements, int servo){
   int index = 0;
   
   while(index < numElements){
-    char cmd = recipe[index];
-    char opCode = cmd & CMD_MASK;
-    char param = cmd & opCode;
+    int cmd = recipe[index];
+    int opCode = cmd & CMD_MASK;
+    int param = cmd & opCode;
+    int numLoop = 0;
+    int indexLoop = 0;
     
     //TODO: Trigger each command from interupt
     switch(opCode){
@@ -171,18 +177,28 @@ void readRecipe(unsigned char recipe[], int numElements, int servo){
         } else{
           PWMDTY1 = position;
         }
+        
+        break;
       }
       case WAIT:{
-        
+        break;  
       }
       case LOOP_START:{
+        numLoop = (int)param;
+        indexLoop = index;
         
+        break;  
       }
       case END_LOOP:{
-        
+        if(numLoop > 0){
+          index = indexLoop + 1;
+          numLoop--;
+          
+          break;
+        }
       }
       case RECIPE_END:{
-        
+        break;    
       }
     }
     
@@ -300,6 +316,7 @@ void main(void) {
           }
           case 'c':
           case 'C':{
+            readRecipe(testRecipe, sizeof(testRecipe)/sizeof(testRecipe[0]), 1);
             break; 
           }
           case 'n':

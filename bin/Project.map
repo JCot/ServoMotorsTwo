@@ -25,7 +25,7 @@ _startupData is allocated at 0xC00B and uses 6 Bytes
 extern struct _tagStartup {
   unsigned nofZeroOut     1
   _Range   pZeroOut       0x1100     14
-  _Copy    *toCopyDownBeg 0xC030
+  _Copy    *toCopyDownBeg 0xC032
 } _startupData;
 
 *********************************************************************************************
@@ -34,9 +34,10 @@ Section Name                    Size  Type     From       To       Segment
 ---------------------------------------------------------------------------------------------
 .init                             11     R     0xC000     0xC00A   ROM_C000
 .startData                        10     R     0xC00B     0xC014   ROM_C000
-NON_BANKED                        27     R     0xC015     0xC02F   ROM_C000
-.copy                             17     R     0xC030     0xC040   ROM_C000
-.text                            236     R   0x308000   0x3080EB   PAGE_30
+.rodata                            2     R     0xC015     0xC016   ROM_C000
+NON_BANKED                        27     R     0xC017     0xC031   ROM_C000
+.copy                             17     R     0xC032     0xC042   ROM_C000
+.text                            355     R   0x308000   0x308162   PAGE_30
 .stack                           256   R/W     0x1000     0x10FF   RAM
 .data                             12   R/W     0x1100     0x110B   RAM
 .abs_section_8                     1   N/I        0x8        0x8   .absSeg0
@@ -448,7 +449,7 @@ NON_BANKED                        27     R     0xC015     0xC02F   ROM_C000
 .vectSeg405_vect                   2     R     0xFFFE     0xFFFF   .vectSeg405
 
 Summary of section sizes per section type:
-READ_ONLY (R):         131 (dec:      305)
+READ_ONLY (R):         1AA (dec:      426)
 READ_WRITE (R/W):      10E (dec:      270)
 NO_INIT (N/I):         1D5 (dec:      469)
 
@@ -843,7 +844,7 @@ MODULE:                 -- mc9s12dt256.c.o --
      _PWMPER23                                   B6       2       2       0   .abs_section_b6
      _PWMPER45                                   B8       2       2       0   .abs_section_b8
      _PWMPER67                                   BA       2       2       0   .abs_section_ba
-     _PWMDTY01                                   BC       2       2       6   .abs_section_bc
+     _PWMDTY01                                   BC       2       2       8   .abs_section_bc
      _PWMDTY23                                   BE       2       2       0   .abs_section_be
      _PWMDTY45                                   C0       2       2       0   .abs_section_c0
      _PWMDTY67                                   C2       2       2       0   .abs_section_c2
@@ -874,16 +875,18 @@ MODULE:                 -- main.c.o --
      InitializeSerialPort                    308000       C      12       2   .text       
      Initialize                              30800C      26      38       2   .text       
      InitializeTimer                         308032      1A      26       2   .text       
-     GetChar                                 30804C       7       7       2   .text       
-     main                                    308053      70     112       2   .text       
-     OC1_isr                                   C015       1       1       1   NON_BANKED  
+     readRecipe                              30804C      67     103       2   .text       
+     GetChar                                 3080B3       7       7       2   .text       
+     main                                    3080BA      80     128       2   .text       
+     OC1_isr                                   C017       1       1       1   NON_BANKED  
 - VARIABLES:
-     dutyPositions                             1100       C      12       2   .data       
+     testRecipe                                C015       2       2       1   .rodata     
+     dutyPositions                             1100       C      12       3   .data       
      dutyIndex                                 110C       2       2       5   .bss        
      _Vector_9                                 FFEC       2       2       0   .abs_section_ffec
 MODULE:                 -- Start12.c.o --
 - PROCEDURES:
-     Init                                    3080C3      29      41       2   .text       
+     Init                                    30813A      29      41       2   .text       
      _Startup                                  C000       B      11       0   .init       
 - VARIABLES:
      _startupData                              C00B       6       6       3   .startData  
@@ -891,7 +894,7 @@ MODULE:                 -- Start12.c.o --
      __SEG_END_SSTACK                          1100       0       0       1               
 MODULE:                 -- rtshc12.c.o (ansibi.lib) --
 - PROCEDURES:
-     _CASE_SEARCH_8_BYTE                       C016      1A      26       1   NON_BANKED  
+     _CASE_SEARCH_8_BYTE                       C018      1A      26       2   NON_BANKED  
 - VARIABLES:
 
 *********************************************************************************************
@@ -899,7 +902,7 @@ MODULE STATISTIC
   Name                                      Data   Code  Const
 ---------------------------------------------------------------------------------------------
   mc9s12dt256.c.o                            469      0      0
-  main.c.o                                    14    196      2
+  main.c.o                                    14    315      4
   Start12.c.o                                  0     52      0
   rtshc12.c.o (ansibi.lib)                     0     26      0
   other                                      256     12     17
@@ -908,13 +911,15 @@ MODULE STATISTIC
 SECTION USE IN OBJECT-ALLOCATION SECTION
 ---------------------------------------------------------------------------------------------
 SECTION: ".text"
-  InitializeSerialPort Initialize InitializeTimer GetChar main Init 
+  InitializeSerialPort Initialize InitializeTimer readRecipe GetChar main Init 
 SECTION: ".data"
   dutyPositions 
 SECTION: ".bss"
   dutyIndex 
 SECTION: ".init"
   _Startup 
+SECTION: ".rodata"
+  testRecipe 
 SECTION: "NON_BANKED"
   OC1_isr _CASE_SEARCH_8_BYTE 
 SECTION: ".abs_section_8"
@@ -1845,7 +1850,7 @@ OBJECT LIST SORTED BY ADDRESS
      _PWMPER23                                   B6       2       2       0   .abs_section_b6
      _PWMPER45                                   B8       2       2       0   .abs_section_b8
      _PWMPER67                                   BA       2       2       0   .abs_section_ba
-     _PWMDTY01                                   BC       2       2       6   .abs_section_bc
+     _PWMDTY01                                   BC       2       2       8   .abs_section_bc
      _PWMDTY23                                   BE       2       2       0   .abs_section_be
      _PWMDTY45                                   C0       2       2       0   .abs_section_c0
      _PWMDTY67                                   C2       2       2       0   .abs_section_c2
@@ -2136,18 +2141,20 @@ OBJECT LIST SORTED BY ADDRESS
      _CAN4TXDLR                                 2BC       1       1       0   .abs_section_2bc
      _CAN4TXTBPR                                2BD       1       1       0   .abs_section_2bd
      _CAN4TXTSR                                 2BE       2       2       0   .abs_section_2be
-     dutyPositions                             1100       C      12       2   .data       
+     dutyPositions                             1100       C      12       3   .data       
      dutyIndex                                 110C       2       2       5   .bss        
      _Startup                                  C000       B      11       0   .init       
-     OC1_isr                                   C015       1       1       1   NON_BANKED  
-     _CASE_SEARCH_8_BYTE                       C016      1A      26       1   NON_BANKED  
+     testRecipe                                C015       2       2       1   .rodata     
+     OC1_isr                                   C017       1       1       1   NON_BANKED  
+     _CASE_SEARCH_8_BYTE                       C018      1A      26       2   NON_BANKED  
      _Vector_9                                 FFEC       2       2       0   .abs_section_ffec
      InitializeSerialPort                    308000       C      12       2   .text       
      Initialize                              30800C      26      38       2   .text       
      InitializeTimer                         308032      1A      26       2   .text       
-     GetChar                                 30804C       7       7       2   .text       
-     main                                    308053      70     112       2   .text       
-     Init                                    3080C3      29      41       2   .text       
+     readRecipe                              30804C      67     103       2   .text       
+     GetChar                                 3080B3       7       7       2   .text       
+     main                                    3080BA      80     128       2   .text       
+     Init                                    30813A      29      41       2   .text       
 
 *********************************************************************************************
 UNUSED-OBJECTS SECTION
@@ -2171,13 +2178,13 @@ rtshc12.c.o (ansibi.lib):
 *********************************************************************************************
 COPYDOWN SECTION
 ---------------------------------------------------------------------------------------------
-------- ROM-ADDRESS: 0xC030 ---- SIZE       4 ---
+------- ROM-ADDRESS: 0xC032 ---- SIZE       4 ---
 Filling bytes inserted
  000B1101
-------- ROM-ADDRESS: 0xC034 ---- RAM-ADDRESS: 0x1101 ---- SIZE      11 ---
+------- ROM-ADDRESS: 0xC036 ---- RAM-ADDRESS: 0x1101 ---- SIZE      11 ---
 Name of initialized Object : dutyPositions:1
  0200030004 0005000600 07
-------- ROM-ADDRESS: 0xC03F ---- SIZE       2 ---
+------- ROM-ADDRESS: 0xC041 ---- SIZE       2 ---
 Filling bytes inserted
  0000
 
@@ -2190,10 +2197,11 @@ InitializeSerialPort      USES _SCI0BD _SCI0CR2
 Initialize                USES _PWMCLK _PWMPRCLK _PWMSCLA _PWMPER01 _PWMDTY01 
                                 _PWMPOL _PWME 
 InitializeTimer           USES _TSCR2 _TCNT _TC1 _TFLG1 _TIE _TSCR1 
+readRecipe                USES _CASE_SEARCH_8_BYTE dutyPositions _PWMDTY01 
 GetChar                   USES _SCI0SR1 _SCI0DRL 
 main                      USES InitializeSerialPort InitializeTimer Initialize 
                                 GetChar _CASE_SEARCH_8_BYTE dutyIndex dutyPositions 
-                                _PWMDTY01 
+                                _PWMDTY01 testRecipe readRecipe 
 Init                      USES _startupData 
 
 *********************************************************************************************
@@ -2212,7 +2220,11 @@ DEPENDENCY TREE
  |  +- GetChar             
  |  |    
  |  +- _CASE_SEARCH_8_BYTE 
- |       
+ |  |    
+ |  +- readRecipe          
+ |     | 
+ |     +- _CASE_SEARCH_8_BYTE  (see above)
+ |        
  +- _Startup            
     | 
     +- Init                
@@ -2229,6 +2241,6 @@ STATISTIC SECTION
 
 ExeFile:
 --------
-Number of blocks to be downloaded: 7
-Total size of all blocks to be downloaded: 305
+Number of blocks to be downloaded: 8
+Total size of all blocks to be downloaded: 426
 
