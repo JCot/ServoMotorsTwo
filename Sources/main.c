@@ -19,6 +19,8 @@
 #define OP_CODE_MASK (0xE0)
 #define PARAM_MASK (0x1F)
 
+#define TIME_TO_MOVE (2); //Number of clock cycles it takes to move one position
+
 const unsigned int recipeOne[] = {
      MOV|0x00,
      MOV|0x05,
@@ -54,8 +56,8 @@ const unsigned int recipeFour[] = {
 };
 
 const unsigned int recipeFive[] = {
-     MOV|0x00,
      MOV|0x02,
+     MOV|0x00,
      MOV|0x04,
      MOV|0x01,
      MOV|0x03,
@@ -66,6 +68,7 @@ const unsigned int recipeFive[] = {
 const unsigned int recipeSix[] = {
      MOV|0x01,
      WAIT|0x01,
+     MOV|0x03,
      RECIPE_END,
      MOV|0x03     
 };
@@ -85,12 +88,22 @@ const unsigned int testRecipe[] = {
 
 // Value to set PWMDTY0 to for the different positions
 int dutyPositions[] = {2, 3, 4, 5, 6, 7};
-int dutyIndex = 0;
-const unsigned int leftRecipe = testRecipe;
-const unsigned int rightRecipe = testRecipe;
+//unsigned int leftRecipe = testRecipe;
+//unsigned int rightRecipe = testRecipe;
 int leftIndex = 0;
 int rightIndex = 0;
-const int timeToMove = 2; //Number of clock cycles it takes to move one position
+int leftRecipeFinished = 0;
+int rightRecipeFinished = 0;
+int leftPosition = 0;
+int rightPosition = 0;
+int leftTimeToMove = 0;
+int rightTimeToMove = 0;
+int leftNumLoop = 0;
+int rightNumLoop = 0;
+int leftIndexLoop = 0;
+int rightIndexLoop = 0;
+char leftCommand = '\0';
+char rightCommand = '\0';
 
 // Initializes SCI0 for 8N1, 9600 baud, polled I/O
 // The value for the baud selection registers is determined
@@ -111,6 +124,8 @@ void InitializeSerialPort(void)
 
 void Initialize(void)
 {
+  int i = 0;
+  int bigNumber = 35000;
   // Set the timer prescaler to %128, and the Scale A register to %78 
   // since the bus clock is at 2 MHz,and we want the timer 
   // running at 50 Hz
@@ -128,9 +143,14 @@ void Initialize(void)
   // Set the Polarity bit to one to ensure the beginning of the cycle is high
   PWMPOL = 3;
   
-  // Enable Pulse Width Channel One, Move once we begin to move servos
+  // Enable Pulse Width Channel One
   PWME_PWME0 = 1;
   PWME_PWME1 = 1;
+  
+  //Give Servos time to reset
+  while(i < bigNumber){
+  	i++;
+  }
    
   //
   // Enable interrupts via macro provided by hidef.h
@@ -146,8 +166,11 @@ void InitializeTimer(void)
   // Set the timer prescaler to %2, since the bus clock is at 2 MHz,
   // and we want the timer running at 1 MHz
   TSCR2_PR0 = 1;
-  TSCR2_PR1 = 1;
-  TSCR2_PR2 = 1;
+  TSCR2_PR1 = 0;
+  TSCR2_PR2 = 0;
+  
+  TCTL4_EDG1B = 0;
+  TCTL4_EDG1A = 1;
   
   // Set up timer compare value
   TC1 = TCNT;
@@ -170,13 +193,11 @@ void InitializeTimer(void)
 }
 
 //Pass numElements as sizeof(array)/sizeof(array[0])
-void executeCommand(int cmd, int servo){
+void executeCommand(unsigned int cmd, int servo){
   //int index = 0;
   //int cmd = 0;
   int opCode = 0;
   int param = 0;
-  int numLoop = 0;
-  int indexLoop = 0;
   
   //do{
     //cmd = recipe[index];
@@ -184,42 +205,113 @@ void executeCommand(int cmd, int servo){
     param = cmd & PARAM_MASK;
     
     //TODO: Trigger each command from interupt
-    switch(opCode){
-      case MOV:{
-        int position = dutyPositions[(int)param];
+    if(servo == 1){
+    	
+    	switch(opCode){
+    		case MOV:{
+        		int position = dutyPositions[(int)param]; //Position to move to.
         
-        if(servo == 1){
-          PWMDTY0 = position; 
-        } else{
-          PWMDTY1 = position;
-        }
+        	 	leftTimeToMove = abs(position - leftPosition) * TIME_TO_MOVE;
+        		leftPosition = (int)param;
+        		PWMDTY0 = position;
         
-        break;
-      }
-      case WAIT:{
-        break;  
-      }
-      case LOOP_START:{
-        numLoop = (int)param;
-        indexLoop = leftIndex;
+        		break;
+      		}
+      		case WAIT:{
+        		break;  
+      		}
+      		case LOOP_START:{
+        		leftNumLoop = (int)param;
+        		leftIndexLoop = leftIndex;
         
-        break;  
-      }
-      case END_LOOP:{
-        if(numLoop > 0){
-          //index = indexLoop + 1;
-          numLoop--;
-        }
+       			break;  
+      		}
+      		case END_LOOP:{
+        		if(leftNumLoop > 0){
         
-        break;
-      }
-      case RECIPE_END:{
-        break;    
-      }
+        			leftIndex = leftIndexLoop + 1;
+            	
+        			leftNumLoop--;
+        		}
+        	
+        		break;
+      		}
+      		case RECIPE_END:{
+      			
+      			leftRecipeFinished = 1;	
+      			
+        		break;    
+      		}
+    	}
+    	
+    	leftIndex++;
     }
     
-    index++;  
+    else{
+    	switch(opCode){
+    		case MOV:{
+        		int position = dutyPositions[(int)param]; //Position to move to.
+        
+        	 	rightTimeToMove = abs(position - rightPosition) * TIME_TO_MOVE;
+        		rightPosition = (int)param;
+        		PWMDTY1 = position;
+        
+        		break;
+      		}
+      		case WAIT:{
+        		break;  
+      		}
+      		case LOOP_START:{
+        		rightNumLoop = (int)param;
+        		
+        		rightIndexLoop = rightIndex;
+        		
+        
+       			break;  
+      		}
+      		case END_LOOP:{
+        		if(rightNumLoop > 0){
+        
+        			rightIndex = rightIndexLoop + 1;
+        			
+        			rightNumLoop--;
+        		}
+        	
+        		break;
+      		}
+      		case RECIPE_END:{
+      			
+      			rightRecipeFinished = 1;
+      			
+        		break;    
+      		}
+    	}
+    	
+    	rightIndex++;	
+    }
+    
   //}while(cmd != RECIPE_END);
+}
+
+void executeRecipeStep(){
+	int leftCmd;
+	int rightCmd;
+	
+	if(!leftRecipeFinished && leftTimeToMove == 0){
+		leftCmd = recipeSix[leftIndex];
+		
+		executeCommand(leftCmd, 1);	
+	} else if(leftTimeToMove != 0){
+		leftTimeToMove--;	
+	}
+	
+	if(!rightRecipeFinished && rightTimeToMove == 0){
+		rightCmd = recipeFive[rightIndex];
+		
+		executeCommand(rightCmd, 2);
+	} else if(rightTimeToMove != 0){
+		rightTimeToMove--;	
+	}
 }
 
 
@@ -244,7 +336,9 @@ void executeCommand(int cmd, int servo){
 //--------------------------------------------------------------       
 void interrupt 9 OC1_isr( void )
 {     
-    
+	executeRecipeStep();
+	
+	TFLG1 = TFLG1_C1F_MASK;      
 }
 #pragma pop
 
@@ -268,84 +362,151 @@ void TERMIO_PutChar(INT8 ch)
     SCI0DRL = ch;
 }
 
+void processInput(void){
+
+	switch(leftCommand) {
+        case 'l':
+        case 'L': {
+          
+            if(leftPosition < 5){
+            	PWMDTY0 = dutyPositions[leftPosition + 1];
+            	
+            	leftPosition++;
+            }
+        	break;     
+        }
+        case 'r':
+        case 'R':{
+        	if(leftPosition > 0){
+           		PWMDTY0 = dutyPositions[leftPosition - 1];
+              
+            	leftPosition--;
+        	}
+            
+            break;
+        }
+        case 'p':
+        case 'P':{
+            break; 
+        }
+        case 'c':
+        case 'C':{
+            executeCommand(MOV|0x02, 1);
+        	break; 
+        }
+        case 'n':
+        case 'N':{
+        	break; 
+        }
+        case 'b':
+        case 'B':{
+        	break; 
+        } 
+          
+        default:{
+        	break;
+    	}
+          
+	};
+	
+	switch(rightCommand) {
+        case 'l':
+        case 'L': {
+          
+            if(rightPosition < 5){
+            	PWMDTY1 = dutyPositions[rightPosition + 1];
+            	
+            	rightPosition++;
+            }
+        	break;     
+        }
+        case 'r':
+        case 'R':{
+        	if(rightPosition > 0){
+            	PWMDTY1 = dutyPositions[rightPosition - 1];
+              
+            	rightPosition--;
+        	}
+            
+            break;
+        }
+        case 'p':
+        case 'P':{
+            break; 
+        }
+        case 'c':
+        case 'C':{
+            executeCommand(MOV|0x02, 2);
+        	break; 
+        }
+        case 'n':
+        case 'N':{
+        	break; 
+        }
+        case 'b':
+        case 'B':{
+        	break; 
+        } 
+          
+        default:{
+        	break;
+    	}
+          
+	};
+	
+	leftCommand = '\0';
+	rightCommand = '\0';		
+}
+
 
 // Polls for a character on the serial port.
 // Need to change
 // Returns: Received character
 //--------------------------------------------------------------       
-UINT8 GetChar(void)
+void GetChar(void)
 { 
    //Poll for data
-  do
-  {
+  //do
+  //{
     // Nothing
-  } while(SCI0SR1_RDRF == 0);
- //  
-  // Fetch and return data from SCI0
-  return SCI0DRL;
+  //} while(SCI0SR1_RDRF == 0);
+  
+ if(SCI0SR1_RDRF != 0){
+ 	if(SCI0DRL == 'x' || SCI0DRL == 'X'){
+ 		leftCommand = '\0';
+ 		rightCommand = '\0';
+ 		(void)printf("\n\r>");
+ 	}
+ 	
+ 	else if(leftCommand == '\0'){
+ 		leftCommand = SCI0DRL;	
+ 	}
+ 	
+ 	else if(rightCommand == '\0'){
+ 		rightCommand = SCI0DRL;	
+ 	}
+ 	
+ 	else if(SCI0DRL == '\r'){
+ 		DisableInterrupts;
+ 		processInput();
+ 		EnableInterrupts;
+ 	}
+ }
 }
 
 void main(void) {
   /* put your own code here */ 
   int ServoIndex=0;
   InitializeSerialPort();
+  Initialize();
   InitializeTimer();
-	Initialize();
        
 
   while(1 == 1) {
   
-        char temp= GetChar();
-        ServoIndex ++;
-        switch(temp) {
-          case 'l':
-          case 'L': {
-          
-            if(dutyIndex < 5){
-           
-              PWMDTY0 = dutyPositions[dutyIndex + 1];
-              PWMDTY1 = dutyPositions[dutyIndex + 1];
-              dutyIndex++;
-            }
-            break;     
-          }
-          case 'r':
-          case 'R':{
-           if(dutyIndex > 0){
-              PWMDTY0 = dutyPositions[dutyIndex - 1];
-              PWMDTY1 = dutyPositions[dutyIndex - 1];
-              
-              dutyIndex--;
-           }
-            break;
-          }
-          case 'p':
-          case 'P':{
-            break; 
-          }
-          case 'c':
-          case 'C':{
-            readRecipe(leftRecipe, sizeof(leftRecipe)/sizeof(leftRecipe[0]), 1);
-            break; 
-          }
-          case 'n':
-          case 'N':{
-            break; 
-          }
-          case 'b':
-          case 'B':{
-            break; 
-          }
-          case 'x':
-          case 'X':{
-            break; 
-          } 
-          
-          default:{
-            break;
-          }
-          
-        }
+        //char temp= GetChar();
+        GetChar();
+        
       
   } /* loop forever */
 }
