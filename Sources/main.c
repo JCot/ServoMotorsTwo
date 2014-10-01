@@ -18,7 +18,7 @@
 #define RECIPE_END (0x00)
 #define OP_CODE_MASK (0xE0)
 #define PARAM_MASK (0x1F)
-#define INITIALIZE (0xFF)
+#define INITIALIZE (0xE0)
 
 #define TIME_TO_MOVE (2); //Number of clock cycles it takes to move one position
 
@@ -106,8 +106,9 @@ const unsigned int testRecipe[] = {
      RECIPE_END
 };
 
-const unsigned int Initialize[] = {
-	INITIALIZE	
+const unsigned int InitializeRecipe[] = {
+	INITIALIZE,
+	RECIPE_END	
 };
 
 // Value to set PWMDTY0 to for the different positions
@@ -264,7 +265,8 @@ void executeCommand(unsigned int cmd, int servo){
       		}
     		case INITIALIZE:{
     			PWMDTY0 = dutyPositions[5];
-    			leftTimeToMove = 10;	
+    			leftTimeToMove = 10;
+    			PWMDTY0 = dutyPositions[0];
     		}
       		case RECIPE_END:{
       			
@@ -345,7 +347,7 @@ void executeRecipeStep(){
 	
 	if(LeftState == STATE_RUN){
 		if(!leftRecipeFinished && leftTimeToMove == 0){
-			leftCmd = recipeSix[leftIndex];
+			leftCmd = InitializeRecipe[leftIndex];
 		
 			executeCommand(leftCmd, 1);	
 		}
