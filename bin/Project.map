@@ -28,7 +28,7 @@ _startupData is allocated at 0xC00B and uses 6 Bytes
 extern struct _tagStartup {
   unsigned nofZeroOut     1
   _Range   pZeroOut       0x1100     49
-  _Copy    *toCopyDownBeg 0xC10B
+  _Copy    *toCopyDownBeg 0xC195
 } _startupData;
 
 *********************************************************************************************
@@ -37,11 +37,11 @@ Section Name                    Size  Type     From       To       Segment
 ---------------------------------------------------------------------------------------------
 .init                             11     R     0xC000     0xC00A   ROM_C000
 .startData                        10     R     0xC00B     0xC014   ROM_C000
-.rodata                          134     R     0xC015     0xC09A   ROM_C000
-.rodata1                           8     R     0xC09B     0xC0A2   ROM_C000
-NON_BANKED                       104     R     0xC0A3     0xC10A   ROM_C000
-.copy                             17     R     0xC10B     0xC11B   ROM_C000
-.text                           2283     R   0x308000   0x3088EA   PAGE_30
+.rodata                          138     R     0xC015     0xC09E   ROM_C000
+.rodata1                         142     R     0xC09F     0xC12C   ROM_C000
+NON_BANKED                       104     R     0xC12D     0xC194   ROM_C000
+.copy                             17     R     0xC195     0xC1A5   ROM_C000
+.text                           2357     R   0x308000   0x308934   PAGE_30
 .stack                           256   R/W     0x1000     0x10FF   RAM
 .data                             12   R/W     0x1100     0x110B   RAM
 .abs_section_8                     1   N/I        0x8        0x8   .absSeg0
@@ -453,7 +453,7 @@ NON_BANKED                       104     R     0xC0A3     0xC10A   ROM_C000
 .vectSeg405_vect                   2     R     0xFFFE     0xFFFF   .vectSeg405
 
 Summary of section sizes per section type:
-READ_ONLY (R):         A0B (dec:     2571)
+READ_ONLY (R):         ADF (dec:     2783)
 READ_WRITE (R/W):      131 (dec:      305)
 NO_INIT (N/I):         1D5 (dec:      469)
 
@@ -848,7 +848,7 @@ MODULE:                 -- mc9s12dt256.c.o --
      _PWMPER23                                   B6       2       2       0   .abs_section_b6
      _PWMPER45                                   B8       2       2       0   .abs_section_b8
      _PWMPER67                                   BA       2       2       0   .abs_section_ba
-     _PWMDTY01                                   BC       2       2      10   .abs_section_bc
+     _PWMDTY01                                   BC       2       2       8   .abs_section_bc
      _PWMDTY23                                   BE       2       2       0   .abs_section_be
      _PWMDTY45                                   C0       2       2       0   .abs_section_c0
      _PWMDTY67                                   C2       2       2       0   .abs_section_c2
@@ -879,39 +879,43 @@ MODULE:                 -- main.c.o --
      InitializeSerialPort                    308000       C      12       2   .text       
      Initialize                              30800C      3A      58       2   .text       
      InitializeTimer                         308046      24      36       2   .text       
-     executeCommand                          30806A     137     311       5   .text       
-     executeRecipeStep                       3081A1      83     131       2   .text       
-     TERMIO_PutChar                          308224       D      13       7   .text       
-     processInput                            308231     161     353       2   .text       
-     GetChar                                 308392      61      97       2   .text       
-     main                                    3083F3      18      24       2   .text       
-     OC1_isr                                   C0A3       9       9       1   NON_BANKED  
+     executeCommand                          30806A     181     385       5   .text       
+     executeRecipeStep                       3081EB      83     131       2   .text       
+     TERMIO_PutChar                          30826E       D      13       7   .text       
+     processInput                            30827B     161     353       2   .text       
+     GetChar                                 3083DC      61      97       2   .text       
+     main                                    30843D      18      24       2   .text       
+     OC1_isr                                   C12D       9       9       1   NON_BANKED  
 - VARIABLES:
      recipeFive                                C015       E      14       1   .rodata     
-     InitializeRecipe                          C023       4       4       1   .rodata     
-     STRING.....1                              C09B       4       4       1   .rodata1    
-     STRING.....2                              C09F       4       4       1   .rodata1    
-     dutyPositions                             1100       C      12       8   .data       
-     leftIndex                                 110C       2       2       6   .bss        
-     rightIndex                                110E       2       2       6   .bss        
+     RestartRecipe                             C023       8       8       1   .rodata     
+     STRING.Position.out.of.boun.1             C09F      1B      27       1   .rodata1    
+     STRING.Invalid.OpCode..Ente.2             C0BA      28      40       1   .rodata1    
+     STRING.Position.out.of.boun.3             C0E2      1B      27       1   .rodata1    
+     STRING.Invalid.OpCode..Ente.4             C0FD      28      40       1   .rodata1    
+     STRING.....5                              C125       4       4       1   .rodata1    
+     STRING.....6                              C129       4       4       1   .rodata1    
+     dutyPositions                             1100       C      12       6   .data       
+     leftIndex                                 110C       2       2       7   .bss        
+     rightIndex                                110E       2       2       7   .bss        
      leftRecipeFinished                        1110       2       2       3   .bss        
      rightRecipeFinished                       1112       2       2       3   .bss        
      leftPosition                              1114       2       2       8   .bss        
-     rightPosition                             1116       2       2       9   .bss        
-     leftTimeToMove                            1118       2       2       5   .bss        
+     rightPosition                             1116       2       2       8   .bss        
+     leftTimeToMove                            1118       2       2       4   .bss        
      rightTimeToMove                           111A       2       2       4   .bss        
-     leftNumLoop                               111C       2       2       3   .bss        
-     rightNumLoop                              111E       2       2       3   .bss        
+     leftNumLoop                               111C       2       2       4   .bss        
+     rightNumLoop                              111E       2       2       4   .bss        
      leftIndexLoop                             1120       2       2       2   .bss        
      rightIndexLoop                            1122       2       2       2   .bss        
      leftCommand                               1124       1       1       5   .bss        
      rightCommand                              1125       1       1       5   .bss        
-     LeftState                                 1126       2       2      11   .bss        
-     RightState                                1128       2       2      12   .bss        
+     LeftState                                 1126       2       2      12   .bss        
+     RightState                                1128       2       2      14   .bss        
      _Vector_9                                 FFEC       2       2       0   .abs_section_ffec
 MODULE:                 -- Start12.c.o --
 - PROCEDURES:
-     Init                                    30840B      29      41       2   .text       
+     Init                                    308455      29      41       2   .text       
      _Startup                                  C000       B      11       0   .init       
 - VARIABLES:
      _startupData                              C00B       6       6       3   .startData  
@@ -919,30 +923,30 @@ MODULE:                 -- Start12.c.o --
      __SEG_END_SSTACK                          1100       0       0       1               
 MODULE:                 -- EMBEDDED.C.o (ansibi.lib) --
 - PROCEDURES:
-     printf                                  308434      17      23       4   .text       
+     printf                                  30847E      17      23      12   .text       
 - VARIABLES:
 MODULE:                 -- PRINTF.C.o (ansibi.lib) --
 - PROCEDURES:
-     vprintf                                 30844B     47B    1147      57   .text       
-     _out                                    3088C6       C      12       2   .text       
-     set_printf                              3088D2       F      15       2   .text       
+     vprintf                                 308495     47B    1147      57   .text       
+     _out                                    308910       C      12       2   .text       
+     set_printf                              30891C       F      15       2   .text       
 - VARIABLES:
-     pow10                                     C027      28      40       4   .rodata     
-     pow16                                     C04F      20      32       4   .rodata     
-     pow8                                      C06F      2C      44       4   .rodata     
+     pow10                                     C02B      28      40       4   .rodata     
+     pow16                                     C053      20      32       4   .rodata     
+     pow8                                      C073      2C      44       4   .rodata     
      pbuf                                      112A       7       7      11   .bss        
 MODULE:                 -- STDLIB.C.o (ansibi.lib) --
 - PROCEDURES:
-     abs                                     3088E1       A      10       4   .text       
+     abs                                     30892B       A      10       4   .text       
 - VARIABLES:
 MODULE:                 -- rtshc12.c.o (ansibi.lib) --
 - PROCEDURES:
-     _LCMP_P                                   C0AC      15      21       3   NON_BANKED  
-     _LNEG                                     C0C1       D      13       1   NON_BANKED  
-     _ILSEXT                                   C0CE       7       7       2   NON_BANKED  
-     _CASE_DIRECT_BYTE                         C0D5       5       5       1   NON_BANKED  
-     _CASE_SEARCH_8                            C0DA      17      23       1   NON_BANKED  
-     _CASE_SEARCH_8_BYTE                       C0F1      1A      26       5   NON_BANKED  
+     _LCMP_P                                   C136      15      21       3   NON_BANKED  
+     _LNEG                                     C14B       D      13       1   NON_BANKED  
+     _ILSEXT                                   C158       7       7       2   NON_BANKED  
+     _CASE_DIRECT_BYTE                         C15F       5       5       1   NON_BANKED  
+     _CASE_SEARCH_8                            C164      17      23       1   NON_BANKED  
+     _CASE_SEARCH_8_BYTE                       C17B      1A      26       5   NON_BANKED  
 - VARIABLES:
 
 *********************************************************************************************
@@ -950,7 +954,7 @@ MODULE STATISTIC
   Name                                      Data   Code  Const
 ---------------------------------------------------------------------------------------------
   mc9s12dt256.c.o                            469      0      0
-  main.c.o                                    42   1044     28
+  main.c.o                                    42   1118    166
   Start12.c.o                                  0     52      0
   EMBEDDED.C.o (ansibi.lib)                    0     23      0
   PRINTF.C.o (ansibi.lib)                      7   1174    116
@@ -975,9 +979,11 @@ SECTION: ".bss"
 SECTION: ".init"
   _Startup 
 SECTION: ".rodata"
-  recipeFive InitializeRecipe pow10 pow16 pow8 
+  recipeFive RestartRecipe pow10 pow16 pow8 
 SECTION: ".rodata1"
-  STRING.....1 STRING.....2 
+  STRING.Position.out.of.boun.1 STRING.Invalid.OpCode..Ente.2 
+  STRING.Position.out.of.boun.3 STRING.Invalid.OpCode..Ente.4 STRING.....5 
+  STRING.....6 
 SECTION: "NON_BANKED"
   OC1_isr _LCMP_P _LNEG _ILSEXT _CASE_DIRECT_BYTE _CASE_SEARCH_8 
   _CASE_SEARCH_8_BYTE 
@@ -1909,7 +1915,7 @@ OBJECT LIST SORTED BY ADDRESS
      _PWMPER23                                   B6       2       2       0   .abs_section_b6
      _PWMPER45                                   B8       2       2       0   .abs_section_b8
      _PWMPER67                                   BA       2       2       0   .abs_section_ba
-     _PWMDTY01                                   BC       2       2      10   .abs_section_bc
+     _PWMDTY01                                   BC       2       2       8   .abs_section_bc
      _PWMDTY23                                   BE       2       2       0   .abs_section_be
      _PWMDTY45                                   C0       2       2       0   .abs_section_c0
      _PWMDTY67                                   C2       2       2       0   .abs_section_c2
@@ -2200,55 +2206,59 @@ OBJECT LIST SORTED BY ADDRESS
      _CAN4TXDLR                                 2BC       1       1       0   .abs_section_2bc
      _CAN4TXTBPR                                2BD       1       1       0   .abs_section_2bd
      _CAN4TXTSR                                 2BE       2       2       0   .abs_section_2be
-     dutyPositions                             1100       C      12       8   .data       
-     leftIndex                                 110C       2       2       6   .bss        
-     rightIndex                                110E       2       2       6   .bss        
+     dutyPositions                             1100       C      12       6   .data       
+     leftIndex                                 110C       2       2       7   .bss        
+     rightIndex                                110E       2       2       7   .bss        
      leftRecipeFinished                        1110       2       2       3   .bss        
      rightRecipeFinished                       1112       2       2       3   .bss        
      leftPosition                              1114       2       2       8   .bss        
-     rightPosition                             1116       2       2       9   .bss        
-     leftTimeToMove                            1118       2       2       5   .bss        
+     rightPosition                             1116       2       2       8   .bss        
+     leftTimeToMove                            1118       2       2       4   .bss        
      rightTimeToMove                           111A       2       2       4   .bss        
-     leftNumLoop                               111C       2       2       3   .bss        
-     rightNumLoop                              111E       2       2       3   .bss        
+     leftNumLoop                               111C       2       2       4   .bss        
+     rightNumLoop                              111E       2       2       4   .bss        
      leftIndexLoop                             1120       2       2       2   .bss        
      rightIndexLoop                            1122       2       2       2   .bss        
      leftCommand                               1124       1       1       5   .bss        
      rightCommand                              1125       1       1       5   .bss        
-     LeftState                                 1126       2       2      11   .bss        
-     RightState                                1128       2       2      12   .bss        
+     LeftState                                 1126       2       2      12   .bss        
+     RightState                                1128       2       2      14   .bss        
      pbuf                                      112A       7       7      11   .bss        
      _Startup                                  C000       B      11       0   .init       
      recipeFive                                C015       E      14       1   .rodata     
-     InitializeRecipe                          C023       4       4       1   .rodata     
-     pow10                                     C027      28      40       4   .rodata     
-     pow16                                     C04F      20      32       4   .rodata     
-     pow8                                      C06F      2C      44       4   .rodata     
-     STRING.....1                              C09B       4       4       1   .rodata1    
-     STRING.....2                              C09F       4       4       1   .rodata1    
-     OC1_isr                                   C0A3       9       9       1   NON_BANKED  
-     _LCMP_P                                   C0AC      15      21       3   NON_BANKED  
-     _LNEG                                     C0C1       D      13       1   NON_BANKED  
-     _ILSEXT                                   C0CE       7       7       2   NON_BANKED  
-     _CASE_DIRECT_BYTE                         C0D5       5       5       1   NON_BANKED  
-     _CASE_SEARCH_8                            C0DA      17      23       1   NON_BANKED  
-     _CASE_SEARCH_8_BYTE                       C0F1      1A      26       5   NON_BANKED  
+     RestartRecipe                             C023       8       8       1   .rodata     
+     pow10                                     C02B      28      40       4   .rodata     
+     pow16                                     C053      20      32       4   .rodata     
+     pow8                                      C073      2C      44       4   .rodata     
+     STRING.Position.out.of.boun.1             C09F      1B      27       1   .rodata1    
+     STRING.Invalid.OpCode..Ente.2             C0BA      28      40       1   .rodata1    
+     STRING.Position.out.of.boun.3             C0E2      1B      27       1   .rodata1    
+     STRING.Invalid.OpCode..Ente.4             C0FD      28      40       1   .rodata1    
+     STRING.....5                              C125       4       4       1   .rodata1    
+     STRING.....6                              C129       4       4       1   .rodata1    
+     OC1_isr                                   C12D       9       9       1   NON_BANKED  
+     _LCMP_P                                   C136      15      21       3   NON_BANKED  
+     _LNEG                                     C14B       D      13       1   NON_BANKED  
+     _ILSEXT                                   C158       7       7       2   NON_BANKED  
+     _CASE_DIRECT_BYTE                         C15F       5       5       1   NON_BANKED  
+     _CASE_SEARCH_8                            C164      17      23       1   NON_BANKED  
+     _CASE_SEARCH_8_BYTE                       C17B      1A      26       5   NON_BANKED  
      _Vector_9                                 FFEC       2       2       0   .abs_section_ffec
      InitializeSerialPort                    308000       C      12       2   .text       
      Initialize                              30800C      3A      58       2   .text       
      InitializeTimer                         308046      24      36       2   .text       
-     executeCommand                          30806A     137     311       5   .text       
-     executeRecipeStep                       3081A1      83     131       2   .text       
-     TERMIO_PutChar                          308224       D      13       7   .text       
-     processInput                            308231     161     353       2   .text       
-     GetChar                                 308392      61      97       2   .text       
-     main                                    3083F3      18      24       2   .text       
-     Init                                    30840B      29      41       2   .text       
-     printf                                  308434      17      23       4   .text       
-     vprintf                                 30844B     47B    1147      57   .text       
-     _out                                    3088C6       C      12       2   .text       
-     set_printf                              3088D2       F      15       2   .text       
-     abs                                     3088E1       A      10       4   .text       
+     executeCommand                          30806A     181     385       5   .text       
+     executeRecipeStep                       3081EB      83     131       2   .text       
+     TERMIO_PutChar                          30826E       D      13       7   .text       
+     processInput                            30827B     161     353       2   .text       
+     GetChar                                 3083DC      61      97       2   .text       
+     main                                    30843D      18      24       2   .text       
+     Init                                    308455      29      41       2   .text       
+     printf                                  30847E      17      23      12   .text       
+     vprintf                                 308495     47B    1147      57   .text       
+     _out                                    308910       C      12       2   .text       
+     set_printf                              30891C       F      15       2   .text       
+     abs                                     30892B       A      10       4   .text       
 
 *********************************************************************************************
 UNUSED-OBJECTS SECTION
@@ -2282,13 +2292,13 @@ rtshc12.c.o (ansibi.lib):
 *********************************************************************************************
 COPYDOWN SECTION
 ---------------------------------------------------------------------------------------------
-------- ROM-ADDRESS: 0xC10B ---- SIZE       4 ---
+------- ROM-ADDRESS: 0xC195 ---- SIZE       4 ---
 Filling bytes inserted
  000B1101
-------- ROM-ADDRESS: 0xC10F ---- RAM-ADDRESS: 0x1101 ---- SIZE      11 ---
+------- ROM-ADDRESS: 0xC199 ---- RAM-ADDRESS: 0x1101 ---- SIZE      11 ---
 Name of initialized Object : dutyPositions:1
  0200030004 0005000600 07
-------- ROM-ADDRESS: 0xC11A ---- SIZE       2 ---
+------- ROM-ADDRESS: 0xC1A4 ---- SIZE       2 ---
 Filling bytes inserted
  0000
 
@@ -2302,21 +2312,23 @@ InitializeSerialPort      USES _SCI0BD _SCI0CR2
 Initialize                USES _PWMCLK _PWMPRCLK _PWMSCLA _PWMPER01 _PWMDTY01 
                                 _PWMPOL _PWME 
 InitializeTimer           USES _TSCR2 _TIOS _TCTL2 _TC1 _TFLG1 _TIE _TSCR1 
-executeCommand            USES _CASE_SEARCH_8_BYTE dutyPositions leftPosition 
-                                abs leftTimeToMove _PWMDTY01 leftNumLoop leftIndex 
-                                leftIndexLoop leftRecipeFinished LeftState executeCommand 
-                                rightPosition RightState rightTimeToMove rightNumLoop 
-                                rightIndex rightIndexLoop rightRecipeFinished 
+executeCommand            USES _CASE_SEARCH_8_BYTE dutyPositions RightState 
+                                STRING.Position.out.of.boun.1 printf leftPosition abs leftTimeToMove 
+                                _PWMDTY01 leftNumLoop leftIndex leftIndexLoop 
+                                leftRecipeFinished LeftState STRING.Invalid.OpCode..Ente.2 
+                                executeCommand STRING.Position.out.of.boun.3 rightPosition 
+                                rightTimeToMove rightNumLoop rightIndex rightIndexLoop 
+                                rightRecipeFinished STRING.Invalid.OpCode..Ente.4 
 executeRecipeStep         USES LeftState leftRecipeFinished leftTimeToMove 
-                                leftIndex InitializeRecipe executeCommand RightState 
+                                leftIndex RestartRecipe executeCommand RightState 
                                 rightRecipeFinished rightTimeToMove rightIndex recipeFive 
 TERMIO_PutChar            USES _SCI0SR1 _SCI0DRL 
 processInput              USES leftCommand _CASE_SEARCH_8_BYTE LeftState 
                                 leftPosition dutyPositions _PWMDTY01 rightCommand 
                                 RightState rightPosition 
 GetChar                   USES _SCI0SR1 _SCI0DRL leftCommand rightCommand 
-                                STRING.....1 printf TERMIO_PutChar processInput 
-                                STRING.....2 
+                                STRING.....5 printf TERMIO_PutChar processInput 
+                                STRING.....6 
 main                      USES InitializeSerialPort Initialize InitializeTimer 
                                 GetChar 
 Init                      USES _startupData 
@@ -2386,6 +2398,8 @@ DEPENDENCY TREE
           | 
           +- _CASE_SEARCH_8_BYTE  (see above)
           |  
+          +- printf               (see above)
+          |  
           +- abs                 
                
 *********************************************************************************************
@@ -2394,6 +2408,6 @@ STATISTIC SECTION
 
 ExeFile:
 --------
-Number of blocks to be downloaded: 7
-Total size of all blocks to be downloaded: 2571
+Number of blocks to be downloaded: 8
+Total size of all blocks to be downloaded: 2783
 

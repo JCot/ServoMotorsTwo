@@ -12,13 +12,13 @@
 
 //Define commands
 #define MOV (0x20)
+#define RESTART (0xC0) // If for some reason you want an infinite loop this allows it without using the loop command
 #define WAIT (0x40)
 #define LOOP_START (0x80)
 #define END_LOOP (0xA0)
 #define RECIPE_END (0x00)
 #define OP_CODE_MASK (0xE0)
 #define PARAM_MASK (0x1F)
-#define INITIALIZE (0xE0)
 
 #define TIME_TO_MOVE (2); //Number of clock cycles it takes to move one position
 
@@ -50,7 +50,7 @@ const unsigned int recipeOne[] = {
   
 const unsigned int recipeTwo[] = {
      MOV|0x03,
-     LOOP_START|0x00,
+     LOOP_START|0x01,
      MOV|0x01,
      MOV|0x04,
      END_LOOP,
@@ -106,8 +106,10 @@ const unsigned int testRecipe[] = {
      RECIPE_END
 };
 
-const unsigned int InitializeRecipe[] = {
-	INITIALIZE,
+const unsigned int RestartRecipe[] = {
+	MOV|0x02,
+	MOV|0x04,
+	RESTART,
 	RECIPE_END	
 };
 
@@ -236,11 +238,17 @@ void executeCommand(unsigned int cmd, int servo){
     	
     	switch(opCode){
     		case MOV:{
-        		int position = dutyPositions[(int)param]; //Position to move to.
+        		int dutyCycle = dutyPositions[(int)param]; //Position to move to.
+        		
+        		if((int)param > 5){
+        			RightState = STATE_ERROR;
+        			(void)printf("Position out of bounds.\r\n>");
+        			break;	
+        		}
         
-        	 	leftTimeToMove = abs(position - leftPosition) * TIME_TO_MOVE;
+        	 	leftTimeToMove = abs((int)param - leftPosition) * TIME_TO_MOVE;
         		leftPosition = (int)param;
-        		PWMDTY0 = position;
+        		PWMDTY0 = dutyCycle;
         
         		break;
       		}
@@ -256,17 +264,16 @@ void executeCommand(unsigned int cmd, int servo){
       		case END_LOOP:{
         		if(leftNumLoop > 0){
         
-        			leftIndex = leftIndexLoop + 1;
+        			leftIndex = leftIndexLoop;
             	
         			leftNumLoop--;
         		}
         	
         		break;
       		}
-    		case INITIALIZE:{
-    			PWMDTY0 = dutyPositions[5];
-    			leftTimeToMove = 10;
-    			PWMDTY0 = dutyPositions[0];
+    		case RESTART:{
+    			leftIndex =-1;
+    			break;
     		}
       		case RECIPE_END:{
       			
@@ -278,6 +285,11 @@ void executeCommand(unsigned int cmd, int servo){
       			
         		break;    
       		}
+      		
+      		default:{
+      			(void)printf("Invalid OpCode. Entering error state.\r\n");
+      			LeftState = STATE_ERROR;	
+      		}
     	}
     	
     	if(LeftState == STATE_RUN){
@@ -288,15 +300,17 @@ void executeCommand(unsigned int cmd, int servo){
     else{
     	switch(opCode){
     		case MOV:{
-        		int position = dutyPositions[(int)param]; //Position to move to.
+        		int dutyCycle = dutyPositions[(int)param]; //Position to move to.
         
-        		if(rightPosition > 5){
-        			RightState = STATE_ERROR;	
+        		if((int)param > 5){
+        			RightState = STATE_ERROR;
+        			(void)printf("Position out of bounds.\r\n>");
+        			break;	
         		}
         
-        	 	rightTimeToMove = abs(position - rightPosition) * TIME_TO_MOVE;
+        	 	rightTimeToMove = abs((int)param - rightPosition) * TIME_TO_MOVE;
         		rightPosition = (int)param;
-        		PWMDTY1 = position;
+        		PWMDTY1 = dutyCycle;
         
         		break;
       		}
@@ -314,13 +328,17 @@ void executeCommand(unsigned int cmd, int servo){
       		case END_LOOP:{
         		if(rightNumLoop > 0){
         
-        			rightIndex = rightIndexLoop + 1;
+        			rightIndex = rightIndexLoop;
         			
         			rightNumLoop--;
         		}
         	
         		break;
       		}
+      		
+      		case RESTART:{
+    			rightIndex =-1;
+    		}
       		case RECIPE_END:{
       			
       			rightRecipeFinished = 1;
@@ -330,6 +348,11 @@ void executeCommand(unsigned int cmd, int servo){
         		rightIndex = 0;
       			
         		break;    
+      		}
+      		
+      		default:{
+      			(void)printf("Invalid OpCode. Entering error state.\r\n");
+      			RightState = STATE_ERROR;	
       		}
     	}
     	
@@ -347,7 +370,7 @@ void executeRecipeStep(){
 	
 	if(LeftState == STATE_RUN){
 		if(!leftRecipeFinished && leftTimeToMove == 0){
-			leftCmd = InitializeRecipe[leftIndex];
+			leftCmd = RestartRecipe[leftIndex];
 		
 			executeCommand(leftCmd, 1);	
 		}
