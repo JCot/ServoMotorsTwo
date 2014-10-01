@@ -27,8 +27,8 @@ Entry point: 0xC000 (_Startup)
 _startupData is allocated at 0xC00B and uses 6 Bytes
 extern struct _tagStartup {
   unsigned nofZeroOut     1
-  _Range   pZeroOut       0x1100     45
-  _Copy    *toCopyDownBeg 0xC10D
+  _Range   pZeroOut       0x1100     49
+  _Copy    *toCopyDownBeg 0xC111
 } _startupData;
 
 *********************************************************************************************
@@ -38,10 +38,10 @@ Section Name                    Size  Type     From       To       Segment
 .init                             11     R     0xC000     0xC00A   ROM_C000
 .startData                        10     R     0xC00B     0xC014   ROM_C000
 .rodata                          140     R     0xC015     0xC0A0   ROM_C000
-.rodata1                           4     R     0xC0A1     0xC0A4   ROM_C000
-NON_BANKED                       104     R     0xC0A5     0xC10C   ROM_C000
-.copy                             17     R     0xC10D     0xC11D   ROM_C000
-.text                           1918     R   0x308000   0x30877D   PAGE_30
+.rodata1                           8     R     0xC0A1     0xC0A8   ROM_C000
+NON_BANKED                       104     R     0xC0A9     0xC110   ROM_C000
+.copy                             17     R     0xC111     0xC121   ROM_C000
+.text                           2263     R   0x308000   0x3088D6   PAGE_30
 .stack                           256   R/W     0x1000     0x10FF   RAM
 .data                             12   R/W     0x1100     0x110B   RAM
 .abs_section_8                     1   N/I        0x8        0x8   .absSeg0
@@ -449,12 +449,12 @@ NON_BANKED                       104     R     0xC0A5     0xC10C   ROM_C000
 .abs_section_2ae                   2   N/I      0x2AE      0x2AF   .absSeg402
 .abs_section_2be                   2   N/I      0x2BE      0x2BF   .absSeg403
 .abs_section_ffec                  2     R     0xFFEC     0xFFED   .absSeg404
-.bss                              33   R/W     0x110C     0x112C   RAM
+.bss                              37   R/W     0x110C     0x1130   RAM
 .vectSeg405_vect                   2     R     0xFFFE     0xFFFF   .vectSeg405
 
 Summary of section sizes per section type:
-READ_ONLY (R):         8A0 (dec:     2208)
-READ_WRITE (R/W):      12D (dec:      301)
+READ_ONLY (R):         9FD (dec:     2557)
+READ_WRITE (R/W):      131 (dec:      305)
 NO_INIT (N/I):         1D5 (dec:      469)
 
 *********************************************************************************************
@@ -507,16 +507,16 @@ MODULE:                 -- mc9s12dt256.c.o --
      _RTICTL                                     3B       1       1       0   .abs_section_3b
      _COPCTL                                     3C       1       1       0   .abs_section_3c
      _ARMCOP                                     3F       1       1       0   .abs_section_3f
-     _TIOS                                       40       1       1       0   .abs_section_40
+     _TIOS                                       40       1       1       1   .abs_section_40
      _CFORC                                      41       1       1       0   .abs_section_41
      _OC7M                                       42       1       1       0   .abs_section_42
      _OC7D                                       43       1       1       0   .abs_section_43
      _TSCR1                                      46       1       1       1   .abs_section_46
      _TTOV                                       47       1       1       0   .abs_section_47
      _TCTL1                                      48       1       1       0   .abs_section_48
-     _TCTL2                                      49       1       1       0   .abs_section_49
+     _TCTL2                                      49       1       1       2   .abs_section_49
      _TCTL3                                      4A       1       1       0   .abs_section_4a
-     _TCTL4                                      4B       1       1       2   .abs_section_4b
+     _TCTL4                                      4B       1       1       0   .abs_section_4b
      _TIE                                        4C       1       1       1   .abs_section_4c
      _TSCR2                                      4D       1       1       3   .abs_section_4d
      _TFLG1                                      4E       1       1       2   .abs_section_4e
@@ -812,7 +812,7 @@ MODULE:                 -- mc9s12dt256.c.o --
      _PORTAB                                      0       2       2       0   .abs_section_0
      _DDRAB                                       2       2       2       0   .abs_section_2
      _PARTID                                     1A       2       2       0   .abs_section_1a
-     _TCNT                                       44       2       2       1   .abs_section_44
+     _TCNT                                       44       2       2       0   .abs_section_44
      _TC0                                        50       2       2       0   .abs_section_50
      _TC1                                        52       2       2       1   .abs_section_52
      _TC2                                        54       2       2       0   .abs_section_54
@@ -877,26 +877,27 @@ MODULE:                 -- mc9s12dt256.c.o --
 MODULE:                 -- main.c.o --
 - PROCEDURES:
      InitializeSerialPort                    308000       C      12       2   .text       
-     Initialize                              30800C      26      38       2   .text       
-     InitializeTimer                         308032      20      32       2   .text       
-     executeCommand                          308052      D4     212       9   .text       
-     executeRecipeStep                       308126      52      82       2   .text       
-     TERMIO_PutChar                          308178       9       9       3   .text       
-     processInput                            308181      C5     197       2   .text       
-     GetChar                                 308246      46      70       2   .text       
-     main                                    30828C      12      18       2   .text       
-     OC1_isr                                   C0A5       9       9       1   NON_BANKED  
+     Initialize                              30800C      3A      58       2   .text       
+     InitializeTimer                         308046      24      36       2   .text       
+     executeCommand                          30806A     123     291       5   .text       
+     executeRecipeStep                       30818D      83     131       2   .text       
+     TERMIO_PutChar                          308210       D      13       7   .text       
+     processInput                            30821D     161     353       2   .text       
+     GetChar                                 30837E      61      97       2   .text       
+     main                                    3083DF      18      24       2   .text       
+     OC1_isr                                   C0A9       9       9       1   NON_BANKED  
 - VARIABLES:
      recipeFive                                C015       E      14       1   .rodata     
      recipeSix                                 C023       A      10       1   .rodata     
      STRING.....1                              C0A1       4       4       1   .rodata1    
-     dutyPositions                             1100       C      12       5   .data       
-     leftIndex                                 110C       2       2       5   .bss        
-     rightIndex                                110E       2       2       5   .bss        
-     leftRecipeFinished                        1110       2       2       2   .bss        
-     rightRecipeFinished                       1112       2       2       2   .bss        
-     leftPosition                              1114       2       2       7   .bss        
-     rightPosition                             1116       2       2       7   .bss        
+     STRING.....2                              C0A5       4       4       1   .rodata1    
+     dutyPositions                             1100       C      12       6   .data       
+     leftIndex                                 110C       2       2       6   .bss        
+     rightIndex                                110E       2       2       6   .bss        
+     leftRecipeFinished                        1110       2       2       3   .bss        
+     rightRecipeFinished                       1112       2       2       3   .bss        
+     leftPosition                              1114       2       2       8   .bss        
+     rightPosition                             1116       2       2       9   .bss        
      leftTimeToMove                            1118       2       2       4   .bss        
      rightTimeToMove                           111A       2       2       4   .bss        
      leftNumLoop                               111C       2       2       3   .bss        
@@ -905,10 +906,12 @@ MODULE:                 -- main.c.o --
      rightIndexLoop                            1122       2       2       2   .bss        
      leftCommand                               1124       1       1       5   .bss        
      rightCommand                              1125       1       1       5   .bss        
+     LeftState                                 1126       2       2      11   .bss        
+     RightState                                1128       2       2      12   .bss        
      _Vector_9                                 FFEC       2       2       0   .abs_section_ffec
 MODULE:                 -- Start12.c.o --
 - PROCEDURES:
-     Init                                    30829E      29      41       2   .text       
+     Init                                    3083F7      29      41       2   .text       
      _Startup                                  C000       B      11       0   .init       
 - VARIABLES:
      _startupData                              C00B       6       6       3   .startData  
@@ -916,30 +919,30 @@ MODULE:                 -- Start12.c.o --
      __SEG_END_SSTACK                          1100       0       0       1               
 MODULE:                 -- EMBEDDED.C.o (ansibi.lib) --
 - PROCEDURES:
-     printf                                  3082C7      17      23       2   .text       
+     printf                                  308420      17      23       4   .text       
 - VARIABLES:
 MODULE:                 -- PRINTF.C.o (ansibi.lib) --
 - PROCEDURES:
-     vprintf                                 3082DE     47B    1147      57   .text       
-     _out                                    308759       C      12       2   .text       
-     set_printf                              308765       F      15       2   .text       
+     vprintf                                 308437     47B    1147      57   .text       
+     _out                                    3088B2       C      12       2   .text       
+     set_printf                              3088BE       F      15       2   .text       
 - VARIABLES:
      pow10                                     C02D      28      40       4   .rodata     
      pow16                                     C055      20      32       4   .rodata     
      pow8                                      C075      2C      44       4   .rodata     
-     pbuf                                      1126       7       7      11   .bss        
+     pbuf                                      112A       7       7      11   .bss        
 MODULE:                 -- STDLIB.C.o (ansibi.lib) --
 - PROCEDURES:
-     abs                                     308774       A      10       4   .text       
+     abs                                     3088CD       A      10       4   .text       
 - VARIABLES:
 MODULE:                 -- rtshc12.c.o (ansibi.lib) --
 - PROCEDURES:
-     _LCMP_P                                   C0AE      15      21       3   NON_BANKED  
-     _LNEG                                     C0C3       D      13       1   NON_BANKED  
-     _ILSEXT                                   C0D0       7       7       2   NON_BANKED  
-     _CASE_DIRECT_BYTE                         C0D7       5       5       1   NON_BANKED  
-     _CASE_SEARCH_8                            C0DC      17      23       1   NON_BANKED  
-     _CASE_SEARCH_8_BYTE                       C0F3      1A      26       5   NON_BANKED  
+     _LCMP_P                                   C0B2      15      21       3   NON_BANKED  
+     _LNEG                                     C0C7       D      13       1   NON_BANKED  
+     _ILSEXT                                   C0D4       7       7       2   NON_BANKED  
+     _CASE_DIRECT_BYTE                         C0DB       5       5       1   NON_BANKED  
+     _CASE_SEARCH_8                            C0E0      17      23       1   NON_BANKED  
+     _CASE_SEARCH_8_BYTE                       C0F7      1A      26       5   NON_BANKED  
 - VARIABLES:
 
 *********************************************************************************************
@@ -947,7 +950,7 @@ MODULE STATISTIC
   Name                                      Data   Code  Const
 ---------------------------------------------------------------------------------------------
   mc9s12dt256.c.o                            469      0      0
-  main.c.o                                    38    679     30
+  main.c.o                                    42   1024     34
   Start12.c.o                                  0     52      0
   EMBEDDED.C.o (ansibi.lib)                    0     23      0
   PRINTF.C.o (ansibi.lib)                      7   1174    116
@@ -967,13 +970,14 @@ SECTION: ".data"
 SECTION: ".bss"
   leftIndex rightIndex leftRecipeFinished rightRecipeFinished leftPosition 
   rightPosition leftTimeToMove rightTimeToMove leftNumLoop rightNumLoop 
-  leftIndexLoop rightIndexLoop leftCommand rightCommand pbuf 
+  leftIndexLoop rightIndexLoop leftCommand rightCommand LeftState RightState 
+  pbuf 
 SECTION: ".init"
   _Startup 
 SECTION: ".rodata"
   recipeFive recipeSix pow10 pow16 pow8 
 SECTION: ".rodata1"
-  STRING.....1 
+  STRING.....1 STRING.....2 
 SECTION: "NON_BANKED"
   OC1_isr _LCMP_P _LNEG _ILSEXT _CASE_DIRECT_BYTE _CASE_SEARCH_8 
   _CASE_SEARCH_8_BYTE 
@@ -1832,17 +1836,17 @@ OBJECT LIST SORTED BY ADDRESS
      _RTICTL                                     3B       1       1       0   .abs_section_3b
      _COPCTL                                     3C       1       1       0   .abs_section_3c
      _ARMCOP                                     3F       1       1       0   .abs_section_3f
-     _TIOS                                       40       1       1       0   .abs_section_40
+     _TIOS                                       40       1       1       1   .abs_section_40
      _CFORC                                      41       1       1       0   .abs_section_41
      _OC7M                                       42       1       1       0   .abs_section_42
      _OC7D                                       43       1       1       0   .abs_section_43
-     _TCNT                                       44       2       2       1   .abs_section_44
+     _TCNT                                       44       2       2       0   .abs_section_44
      _TSCR1                                      46       1       1       1   .abs_section_46
      _TTOV                                       47       1       1       0   .abs_section_47
      _TCTL1                                      48       1       1       0   .abs_section_48
-     _TCTL2                                      49       1       1       0   .abs_section_49
+     _TCTL2                                      49       1       1       2   .abs_section_49
      _TCTL3                                      4A       1       1       0   .abs_section_4a
-     _TCTL4                                      4B       1       1       2   .abs_section_4b
+     _TCTL4                                      4B       1       1       0   .abs_section_4b
      _TIE                                        4C       1       1       1   .abs_section_4c
      _TSCR2                                      4D       1       1       3   .abs_section_4d
      _TFLG1                                      4E       1       1       2   .abs_section_4e
@@ -2196,13 +2200,13 @@ OBJECT LIST SORTED BY ADDRESS
      _CAN4TXDLR                                 2BC       1       1       0   .abs_section_2bc
      _CAN4TXTBPR                                2BD       1       1       0   .abs_section_2bd
      _CAN4TXTSR                                 2BE       2       2       0   .abs_section_2be
-     dutyPositions                             1100       C      12       5   .data       
-     leftIndex                                 110C       2       2       5   .bss        
-     rightIndex                                110E       2       2       5   .bss        
-     leftRecipeFinished                        1110       2       2       2   .bss        
-     rightRecipeFinished                       1112       2       2       2   .bss        
-     leftPosition                              1114       2       2       7   .bss        
-     rightPosition                             1116       2       2       7   .bss        
+     dutyPositions                             1100       C      12       6   .data       
+     leftIndex                                 110C       2       2       6   .bss        
+     rightIndex                                110E       2       2       6   .bss        
+     leftRecipeFinished                        1110       2       2       3   .bss        
+     rightRecipeFinished                       1112       2       2       3   .bss        
+     leftPosition                              1114       2       2       8   .bss        
+     rightPosition                             1116       2       2       9   .bss        
      leftTimeToMove                            1118       2       2       4   .bss        
      rightTimeToMove                           111A       2       2       4   .bss        
      leftNumLoop                               111C       2       2       3   .bss        
@@ -2211,7 +2215,9 @@ OBJECT LIST SORTED BY ADDRESS
      rightIndexLoop                            1122       2       2       2   .bss        
      leftCommand                               1124       1       1       5   .bss        
      rightCommand                              1125       1       1       5   .bss        
-     pbuf                                      1126       7       7      11   .bss        
+     LeftState                                 1126       2       2      11   .bss        
+     RightState                                1128       2       2      12   .bss        
+     pbuf                                      112A       7       7      11   .bss        
      _Startup                                  C000       B      11       0   .init       
      recipeFive                                C015       E      14       1   .rodata     
      recipeSix                                 C023       A      10       1   .rodata     
@@ -2219,29 +2225,30 @@ OBJECT LIST SORTED BY ADDRESS
      pow16                                     C055      20      32       4   .rodata     
      pow8                                      C075      2C      44       4   .rodata     
      STRING.....1                              C0A1       4       4       1   .rodata1    
-     OC1_isr                                   C0A5       9       9       1   NON_BANKED  
-     _LCMP_P                                   C0AE      15      21       3   NON_BANKED  
-     _LNEG                                     C0C3       D      13       1   NON_BANKED  
-     _ILSEXT                                   C0D0       7       7       2   NON_BANKED  
-     _CASE_DIRECT_BYTE                         C0D7       5       5       1   NON_BANKED  
-     _CASE_SEARCH_8                            C0DC      17      23       1   NON_BANKED  
-     _CASE_SEARCH_8_BYTE                       C0F3      1A      26       5   NON_BANKED  
+     STRING.....2                              C0A5       4       4       1   .rodata1    
+     OC1_isr                                   C0A9       9       9       1   NON_BANKED  
+     _LCMP_P                                   C0B2      15      21       3   NON_BANKED  
+     _LNEG                                     C0C7       D      13       1   NON_BANKED  
+     _ILSEXT                                   C0D4       7       7       2   NON_BANKED  
+     _CASE_DIRECT_BYTE                         C0DB       5       5       1   NON_BANKED  
+     _CASE_SEARCH_8                            C0E0      17      23       1   NON_BANKED  
+     _CASE_SEARCH_8_BYTE                       C0F7      1A      26       5   NON_BANKED  
      _Vector_9                                 FFEC       2       2       0   .abs_section_ffec
      InitializeSerialPort                    308000       C      12       2   .text       
-     Initialize                              30800C      26      38       2   .text       
-     InitializeTimer                         308032      20      32       2   .text       
-     executeCommand                          308052      D4     212       9   .text       
-     executeRecipeStep                       308126      52      82       2   .text       
-     TERMIO_PutChar                          308178       9       9       3   .text       
-     processInput                            308181      C5     197       2   .text       
-     GetChar                                 308246      46      70       2   .text       
-     main                                    30828C      12      18       2   .text       
-     Init                                    30829E      29      41       2   .text       
-     printf                                  3082C7      17      23       2   .text       
-     vprintf                                 3082DE     47B    1147      57   .text       
-     _out                                    308759       C      12       2   .text       
-     set_printf                              308765       F      15       2   .text       
-     abs                                     308774       A      10       4   .text       
+     Initialize                              30800C      3A      58       2   .text       
+     InitializeTimer                         308046      24      36       2   .text       
+     executeCommand                          30806A     123     291       5   .text       
+     executeRecipeStep                       30818D      83     131       2   .text       
+     TERMIO_PutChar                          308210       D      13       7   .text       
+     processInput                            30821D     161     353       2   .text       
+     GetChar                                 30837E      61      97       2   .text       
+     main                                    3083DF      18      24       2   .text       
+     Init                                    3083F7      29      41       2   .text       
+     printf                                  308420      17      23       4   .text       
+     vprintf                                 308437     47B    1147      57   .text       
+     _out                                    3088B2       C      12       2   .text       
+     set_printf                              3088BE       F      15       2   .text       
+     abs                                     3088CD       A      10       4   .text       
 
 *********************************************************************************************
 UNUSED-OBJECTS SECTION
@@ -2275,13 +2282,13 @@ rtshc12.c.o (ansibi.lib):
 *********************************************************************************************
 COPYDOWN SECTION
 ---------------------------------------------------------------------------------------------
-------- ROM-ADDRESS: 0xC10D ---- SIZE       4 ---
+------- ROM-ADDRESS: 0xC111 ---- SIZE       4 ---
 Filling bytes inserted
  000B1101
-------- ROM-ADDRESS: 0xC111 ---- RAM-ADDRESS: 0x1101 ---- SIZE      11 ---
+------- ROM-ADDRESS: 0xC115 ---- RAM-ADDRESS: 0x1101 ---- SIZE      11 ---
 Name of initialized Object : dutyPositions:1
  0200030004 0005000600 07
-------- ROM-ADDRESS: 0xC11C ---- SIZE       2 ---
+------- ROM-ADDRESS: 0xC120 ---- SIZE       2 ---
 Filling bytes inserted
  0000
 
@@ -2294,21 +2301,22 @@ _Vector_9                 USES OC1_isr
 InitializeSerialPort      USES _SCI0BD _SCI0CR2 
 Initialize                USES _PWMCLK _PWMPRCLK _PWMSCLA _PWMPER01 _PWMDTY01 
                                 _PWMPOL _PWME 
-InitializeTimer           USES _TSCR2 _TCTL4 _TCNT _TC1 _TFLG1 _TIE _TSCR1 
-executeCommand            USES _CASE_SEARCH_8_BYTE executeCommand leftPosition 
+InitializeTimer           USES _TSCR2 _TIOS _TCTL2 _TC1 _TFLG1 _TIE _TSCR1 
+executeCommand            USES _CASE_SEARCH_8_BYTE dutyPositions leftPosition 
                                 abs leftTimeToMove _PWMDTY01 leftNumLoop leftIndex 
-                                leftIndexLoop leftRecipeFinished rightPosition 
-                                rightTimeToMove rightNumLoop rightIndex rightIndexLoop 
-                                rightRecipeFinished dutyPositions 
-executeRecipeStep         USES leftRecipeFinished leftTimeToMove leftIndex 
-                                recipeSix executeCommand rightRecipeFinished 
-                                rightTimeToMove rightIndex recipeFive 
+                                leftIndexLoop leftRecipeFinished LeftState executeCommand 
+                                rightPosition RightState rightTimeToMove rightNumLoop 
+                                rightIndex rightIndexLoop rightRecipeFinished 
+executeRecipeStep         USES LeftState leftRecipeFinished leftTimeToMove 
+                                leftIndex recipeSix executeCommand RightState 
+                                rightRecipeFinished rightTimeToMove rightIndex recipeFive 
 TERMIO_PutChar            USES _SCI0SR1 _SCI0DRL 
-processInput              USES leftCommand _CASE_SEARCH_8_BYTE leftPosition 
-                                dutyPositions _PWMDTY01 executeCommand rightCommand 
-                                rightPosition 
+processInput              USES leftCommand _CASE_SEARCH_8_BYTE LeftState 
+                                leftPosition dutyPositions _PWMDTY01 rightCommand 
+                                RightState rightPosition 
 GetChar                   USES _SCI0SR1 _SCI0DRL leftCommand rightCommand 
-                                STRING.....1 printf processInput 
+                                STRING.....1 printf TERMIO_PutChar processInput 
+                                STRING.....2 
 main                      USES InitializeSerialPort Initialize InitializeTimer 
                                 GetChar 
 Init                      USES _startupData 
@@ -2356,16 +2364,12 @@ DEPENDENCY TREE
  |     |     |    
  |     |     +- _out                
  |     |          
+ |     +- TERMIO_PutChar       (see above)
+ |     |  
  |     +- processInput        
  |        | 
  |        +- _CASE_SEARCH_8_BYTE  (see above)
- |        |  
- |        +- executeCommand      
- |           | 
- |           +- _CASE_SEARCH_8_BYTE  (see above)
- |           |  
- |           +- abs                 
- |                
+ |           
  +- _Startup            
     | 
     +- Init                
@@ -2378,8 +2382,12 @@ DEPENDENCY TREE
     | 
     +- executeRecipeStep   
        | 
-       +- executeCommand       (see above)
-          
+       +- executeCommand      
+          | 
+          +- _CASE_SEARCH_8_BYTE  (see above)
+          |  
+          +- abs                 
+               
 *********************************************************************************************
 STATISTIC SECTION
 ---------------------------------------------------------------------------------------------
@@ -2387,5 +2395,5 @@ STATISTIC SECTION
 ExeFile:
 --------
 Number of blocks to be downloaded: 6
-Total size of all blocks to be downloaded: 2208
+Total size of all blocks to be downloaded: 2557
 
